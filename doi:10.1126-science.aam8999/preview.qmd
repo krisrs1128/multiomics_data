@@ -1,0 +1,46 @@
+---
+title: "Dataset Preview: Single-cell profiling of the developing mouse brain and spinal cord with split-pool barcoding"
+format: html
+---
+
+[DOI: 10.1126/science.aam8999](https://doi.org/10.1126/science.aam8999)
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(glue)
+library(rmatio)
+```
+
+Let's read in this data. We had originally downloaded it from
+[Geo](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE110823). We also
+untar'd it before adding it to the repository.
+
+```{r}
+paths <- list.files(".", "*mat")
+datasets <- map(paths, ~ read.mat(.))
+names(datasets) <- paths
+```
+Let's check the dimensions. What's stored in the main mouse central nervous
+system dataset?
+
+```{r}
+map(datasets, ~ dim(.$DGE))
+str(datasets[["GSM3017261_150000_CNS_nuclei.mat"]])
+```
+
+This dataset can be used for Horizontal Integration (same genes, many types of
+data sources). Let's look into the intersection between genes across data
+sources.
+
+```{r}
+for (i in seq_along(datasets)) {
+  for (j in seq_along(datasets)) {
+    if (i >= j) next
+    print(glue("{length(intersect(datasets[[i]]$genes, datasets[[j]]$genes))} genes overlap between {names(datasets)[i]} and {names(datasets)[j]}"))
+  }
+}
+```
